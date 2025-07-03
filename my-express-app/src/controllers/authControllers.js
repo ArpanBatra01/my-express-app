@@ -1,26 +1,35 @@
+const AppError = require('../errors/AppError');
 const authService = require('../services/authServices');
 
-const registerUser = async (req, res) => {
+const registerUser = async (req, res, next) => {
+
+
     try {
+
         const user = await authService.register(req.body);
-        res.status(201).json(user);
+        res.status(201).json({ message: 'User registered successfully', user });
+
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        next(new AppError(error.message, 400));
     }
 };
 
-const loginUser = async (req, res) => {
+const loginUser = async (req, res, next) => {
+
     try {
+
         const user = await authService.login(req.body);
         res.status(200).json(user);
+
     } catch (error) {
-        res.status(401).json({ message: error.message });
+        next(new AppError(error.message, 401));
+
     }
 };
 
-const getProfile = (req, res) => {
+const getProfile = (req, res, next) => {
     if (!req.user) {
-        return res.status(401).json({ message: 'User not authorized' });
+        return next(new AppError('User not authorized', 401));
     }
 
     res.status(200).json({

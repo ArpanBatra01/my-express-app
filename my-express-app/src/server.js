@@ -3,6 +3,9 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
+const errorHandler = require('./errors/errorHandler')
+const AppError = require('./errors/AppError');
+
 
 dotenv.config();
 
@@ -11,7 +14,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+
+
 app.use('/api/auth', authRoutes);
+
+app.use((req, res, next) => {
+    next(new AppError(`Can't find ${req.originalUrl}`, 404));
+});
+
+app.use(errorHandler);
 
 app.get('/', (req, res) => {
     res.send('Welcome to the JWT Auth API');
